@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Síndrome do Impostor — BNI UP</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #0a0a0f;
+            --card: #12121a;
+            --border: #1e1e2e;
+            --text: #e4e4e7;
+            --muted: #71717a;
+            --accent: #6366f1;
+            --accent-light: #818cf8;
+            --green: #22c55e;
+            --red: #ef4444;
+            --orange: #f59e0b;
+            --bni-blue: #0066cc;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .container { max-width: 600px; width: 100%; }
+
+        .screen { display: none; animation: fadeIn 0.4s ease; }
+        .screen.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* WELCOME */
+        .welcome { text-align: center; padding: 40px 20px; }
+
+        .welcome-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .welcome h1 {
+            font-size: 22px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-light), #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+            line-height: 1.2;
+        }
+
+        .welcome p {
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.4;
+            margin-bottom: 6px;
+        }
+
+        .bni-tag {
+            display: inline-block;
+            padding: 6px 16px;
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 20px;
+            font-size: 12px;
+            color: var(--accent-light);
+            font-weight: 700;
+            margin-bottom: 16px;
+            letter-spacing: 1px;
+        }
+
+        .bni-logo {
+            width: 100px;
+            margin: 0 auto 10px;
+            display: block;
+        }
+
+        .qr-section {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px;
+            margin: 12px 0;
+        }
+
+        .qr-section h3 {
+            font-size: 14px;
+            color: var(--accent-light);
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        #qrcode { display: flex; justify-content: center; margin: 12px 0; }
+        #qrcode img, #qrcode canvas { border-radius: 8px; }
+        .qr-section .url-text { font-size: 11px; color: var(--muted); word-break: break-all; margin-top: 8px; }
+
+        .btn {
+            display: inline-block;
+            padding: 14px 32px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), #7c3aed);
+            color: white;
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 25px rgba(99, 102, 241, 0.4); }
+        .btn-primary:active { transform: translateY(0); }
+
+        /* QUIZ */
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: var(--border);
+            border-radius: 4px;
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), #c084fc);
+            border-radius: 4px;
+            transition: width 0.4s ease;
+        }
+
+        .question-num { font-size: 13px; color: var(--muted); font-weight: 600; }
+        .score-display { font-size: 13px; color: var(--red); font-weight: 600; }
+
+        .question-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 28px 24px;
+            margin-bottom: 20px;
+        }
+
+        .question-card h2 {
+            font-size: 17px;
+            font-weight: 700;
+            line-height: 1.5;
+        }
+
+        .options { display: flex; flex-direction: column; gap: 10px; }
+
+        .option {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-size: 15px;
+            line-height: 1.4;
+        }
+
+        .option:hover { border-color: var(--accent); background: rgba(99, 102, 241, 0.05); }
+        .option.selected { border-color: var(--accent); background: rgba(99, 102, 241, 0.1); }
+        .option.yes { border-color: var(--orange); background: rgba(245, 158, 11, 0.1); }
+        .option.no { border-color: var(--green); background: rgba(34, 197, 94, 0.1); }
+
+        .option .letter {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+            flex-shrink: 0;
+            transition: all 0.2s;
+        }
+
+        .option.yes .letter { background: var(--orange); color: white; }
+        .option.no .letter { background: var(--green); color: white; }
+
+        .explanation {
+            margin-top: 16px;
+            padding: 18px;
+            background: rgba(99, 102, 241, 0.05);
+            border: 1px solid rgba(99, 102, 241, 0.15);
+            border-radius: 12px;
+            font-size: 14px;
+            line-height: 1.7;
+            color: var(--muted);
+            display: none;
+        }
+
+        .explanation.show { display: block; animation: fadeIn 0.3s ease; }
+        .explanation strong { color: var(--text); }
+
+        .btn-next {
+            width: 100%;
+            margin-top: 16px;
+            display: none;
+        }
+
+        .btn-next.show { display: inline-block; animation: fadeIn 0.3s ease; }
+
+        /* RESULT */
+        .result { text-align: center; padding: 40px 20px; }
+        .result-icon { font-size: 72px; margin-bottom: 16px; }
+        .result h1 { font-size: 26px; font-weight: 800; margin-bottom: 8px; }
+
+        .result .score-big {
+            font-size: 52px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-light), #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 16px 0;
+        }
+
+        .result .level { font-size: 18px; font-weight: 700; margin-bottom: 12px; }
+
+        .result .description {
+            font-size: 15px;
+            color: var(--muted);
+            line-height: 1.7;
+            margin-bottom: 24px;
+            max-width: 460px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin: 24px 0;
+        }
+
+        .stat {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 8px;
+        }
+
+        .stat .num { font-size: 24px; font-weight: 800; color: var(--accent-light); }
+        .stat .label { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+        .tip-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            margin: 24px 0;
+            text-align: left;
+        }
+
+        .tip-card h3 { font-size: 16px; font-weight: 700; margin-bottom: 12px; }
+        .tip-card ul { list-style: none; padding: 0; }
+        .tip-card li {
+            padding: 10px 0;
+            font-size: 14px;
+            color: var(--muted);
+            line-height: 1.5;
+            border-bottom: 1px solid var(--border);
+        }
+        .tip-card li:last-child { border-bottom: none; }
+        .tip-card li strong { color: var(--text); }
+
+        @media (max-width: 480px) {
+            .welcome h1 { font-size: 21px; }
+            .question-card h2 { font-size: 15px; }
+            .option { padding: 14px 16px; font-size: 14px; }
+        }
+
+        #confetti {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 999;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="confetti"></canvas>
+
+    <div class="container">
+        <!-- WELCOME -->
+        <div id="welcome" class="screen active welcome">
+            <div class="welcome-icon">🧠</div>
+            <img src="https://www.bni.com/wp-content/uploads/2025/04/BNI-Refresh.png" alt="BNI" class="bni-logo">
+            <div class="bni-tag">BNI UP</div>
+            <h1>Tens Síndrome do Impostor?</h1>
+            <p>Responde a 10 perguntas com <strong>Sim</strong> ou <strong>Não</strong> e descobre como a síndrome do impostor pode estar a afetar o teu networking e negócios no BNI.</p>
+            <p style="font-size:13px; color:#52525b; margin-bottom:4px;">10 perguntas • ~2 min • Auto-avaliação</p>
+
+            <div class="qr-section">
+                <h3>📱 Abra no telemóvel</h3>
+                <div id="qrcode"></div>
+                <div class="url-text" id="urlDisplay"></div>
+            </div>
+
+            <button class="btn btn-primary" onclick="startQuiz()">Começar a Auto-Avaliação ▸</button>
+        </div>
+
+        <!-- QUIZ -->
+        <div id="quiz" class="screen">
+            <div class="quiz-header">
+                <span class="question-num" id="questionNum">1 / 10</span>
+                <span class="score-display" id="scoreDisplay">Sim: 0</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+
+            <div class="question-card">
+                <h2 id="questionText"></h2>
+            </div>
+
+            <div class="options" id="optionsContainer"></div>
+            <div class="explanation" id="explanation"></div>
+            <button class="btn btn-primary btn-next" id="btnNext" onclick="nextQuestion()">Próxima ▸</button>
+        </div>
+
+        <!-- RESULT -->
+        <div id="result" class="screen result">
+            <div class="result-icon" id="resultIcon"></div>
+            <div class="bni-tag">RESULTADO</div>
+            <h1 id="resultTitle"></h1>
+            <div class="score-big" id="scoreBig"></div>
+            <div class="level" id="resultLevel"></div>
+            <div class="description" id="resultDesc"></div>
+
+            <div class="stats">
+                <div class="stat">
+                    <div class="num" id="statYes">0</div>
+                    <div class="label">Respostas Sim</div>
+                </div>
+                <div class="stat">
+                    <div class="num" id="statNo">0</div>
+                    <div class="label">Respostas Não</div>
+                </div>
+                <div class="stat">
+                    <div class="num" id="statPercent">0%</div>
+                    <div class="label">Sinais de Impostor</div>
+                </div>
+            </div>
+
+            <div class="tip-card">
+                <h3>💡 Combater o Impostor no BNI</h3>
+                <ul>
+                    <li><strong>📝 Diário de Vitórias:</strong> Regista cada referência recebida, cada TYFCB, cada parabéns. Quando o impostor falar, lê o caderno.</li>
+                    <li><strong>🤝 1-to-1s:</strong> Marca cafés com colegas do BNI. Ouvir que outros passam pelo mesmo reduz o isolamento do impostor.</li>
+                    <li><strong>🎯 Fala do teu valor:</strong> Os 60 segundos são o teu treino semanal. Quanto mais praticas, mais o impostor perde força.</li>
+                    <li><strong>🎁 Givers Gain:</strong> Ao ajudar outros, ganhas perspetiva. O teu contributo é real e mensurável.</li>
+                </ul>
+            </div>
+
+            <button class="btn btn-primary" onclick="restartQuiz()" style="margin-top:20px;">Refazer Quiz ↻</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "Já cobraste menos do que o justo por achares que o teu serviço não vale mais?",
+                explanation: "Descontar por insegurança é um dos sinais mais comuns. O impostor diz que não vales o preço justo. No BNI, onde a confiança é a moeda, isto mina diretamente a tua receita."
+            },
+            {
+                question: "Evitas pedir referências porque sentes que não mereces ou que não és bom o suficiente?",
+                explanation: "Pedir referências é o coração do BNI. Se evitas pedir, o impostor está a controlar o teu crescimento. Cada referência não pedida é um negócio perdido."
+            },
+            {
+                question: "Nos 60 segundos, falas rápido e baixo porque achas que o que tens para dizer não é interessante?",
+                explanation: "A apresentação de 60 segundos é a tua vitrine semanal. Se o impostor te faz falar com medo, a sala não consegue perceber o teu valor. Treinar ajuda a silenciar essa voz."
+            },
+            {
+                question: "Quando recebes uma referência, pensas logo que foi sorte ou que o colega fez por pena?",
+                explanation: "Minimizar conquistas é clássico do impostor. Uma referência no BNI é o resultado da confiança que outros depositam em ti. Não é sorte, é mérito."
+            },
+            {
+                question: "Evitas fazer 1-to-1s porque achas que não tens nada de valor para oferecer ao outro?",
+                explanation: "O 1-to-1 é uma via de mão dupla. Se evitas, estás a privar outros do teu conhecimento e contactos. Givers Gain começa por acreditar que tens algo para dar."
+            },
+            {
+                question: "Trabalhas horas extra antes da apresentação de 10 minutos porque tens medo de não ser bom o suficiente?",
+                explanation: "Preparação é saudável. Mas se trabalhas por medo e não por entusiasmo, o impostor está ao leme. A diferença está na motivação: medo vs. entrega."
+            },
+            {
+                question: "Quando outros membros celebram negócios fechados, sentes que tu nunca vais chegar a esse nível?",
+                explanation: "Comparar-te com os outros alimenta o impostor. Cada negócio fechado por um colega é prova de que o sistema funciona. Inclui-te nessa narrativa."
+            },
+            {
+                question: "Se alguém te elogia publicamente no BNI, ficas constrangido e mudas de tema?",
+                explanation: "Não sabes receber elogios? É o impostor a dizer que não mereces. Aprender a receber feedback positivo é uma habilidade tão importante como dar."
+            },
+            {
+                question: "Já pensaste em desistir do BNI porque achas que não estás a contribuir o suficiente para o grupo?",
+                explanation: "O impostor adora isolar-te. Se pensas em sair, fala com o teu coordenador ou faz um 1-to-1. Provavelmente, outros sentem o mesmo e a tua presença é mais valiosa do que pensas."
+            },
+            {
+                question: "Sentes que os outros membros do BNI são mais competentes e merecedores do que tu?",
+                explanation: "Se respondeste sim, não estás sozinho. 70% das pessoas sentem o mesmo em algum momento. O facto de estares neste quiz mostra que queres crescer. Isso já é mérito."
+            }
+        ];
+
+        let currentQ = 0;
+        let yesCount = 0;
+
+        function generateQR() {
+            const url = window.location.href;
+            document.getElementById('urlDisplay').textContent = url;
+            const img = document.createElement('img');
+            img.src = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(url);
+            img.alt = 'QR Code';
+            img.style.width = '120px';
+            img.style.height = '120px';
+            img.style.borderRadius = '8px';
+            img.onerror = function() {
+                document.getElementById('qrcode').innerHTML = '<p style="font-size:14px;color:var(--accent-light);word-break:break-all;">' + url + '</p>';
+            };
+            document.getElementById('qrcode').appendChild(img);
+        }
+
+        function startQuiz() {
+            document.getElementById('welcome').classList.remove('active');
+            document.getElementById('quiz').classList.add('active');
+            currentQ = 0;
+            yesCount = 0;
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const q = questions[currentQ];
+            document.getElementById('questionNum').textContent = (currentQ + 1) + ' / ' + questions.length;
+            document.getElementById('scoreDisplay').textContent = 'Sim: ' + yesCount;
+            document.getElementById('progressFill').style.width = ((currentQ) / questions.length * 100) + '%';
+            document.getElementById('questionText').textContent = q.question;
+
+            const expl = document.getElementById('explanation');
+            expl.classList.remove('show');
+            expl.style.display = 'none';
+            document.getElementById('btnNext').classList.remove('show');
+
+            const container = document.getElementById('optionsContainer');
+            container.innerHTML = '';
+
+            ['Sim', 'Não'].forEach(function(opt, i) {
+                const div = document.createElement('div');
+                div.className = 'option';
+                div.innerHTML = '<span class="letter">' + (i === 0 ? 'S' : 'N') + '</span><span>' + opt + '</span>';
+                div.onclick = function() { selectOption(i); };
+                container.appendChild(div);
+            });
+        }
+
+        function selectOption(index) {
+            const q = questions[currentQ];
+            const options = document.querySelectorAll('.option');
+
+            options.forEach(function(opt, i) {
+                opt.style.pointerEvents = 'none';
+                if (i === 0) opt.classList.add(index === 0 ? 'yes' : 'no');
+                if (i === 1) opt.classList.add(index === 1 ? 'no' : 'yes');
+            });
+
+            if (index === 0) {
+                yesCount++;
+                document.getElementById('scoreDisplay').textContent = 'Sim: ' + yesCount;
+            }
+
+            const expl = document.getElementById('explanation');
+            expl.innerHTML = q.explanation;
+            expl.style.display = 'block';
+            expl.classList.add('show');
+
+            const btn = document.getElementById('btnNext');
+            btn.textContent = currentQ < questions.length - 1 ? 'Próxima ▸' : 'Ver Resultado 🎯';
+            btn.classList.add('show');
+        }
+
+        function nextQuestion() {
+            currentQ++;
+            if (currentQ >= questions.length) {
+                showResult();
+            } else {
+                document.getElementById('quiz').classList.remove('active');
+                setTimeout(function() {
+                    document.getElementById('quiz').classList.add('active');
+                    loadQuestion();
+                }, 50);
+            }
+        }
+
+        function showResult() {
+            document.getElementById('quiz').classList.remove('active');
+            document.getElementById('result').classList.add('active');
+
+            var pct = Math.round((yesCount / questions.length) * 100);
+            document.getElementById('scoreBig').textContent = yesCount + '/10';
+            document.getElementById('statYes').textContent = yesCount;
+            document.getElementById('statNo').textContent = questions.length - yesCount;
+            document.getElementById('statPercent').textContent = pct + '%';
+
+            var icon, title, level, desc;
+            if (yesCount <= 2) {
+                icon = '💪';
+                title = 'Impostor Fraco!';
+                level = 'Baixa probabilidade de Síndrome do Impostor';
+                desc = 'Parabéns! Tens uma relação saudável com o teu valor profissional. Continua a ser referência para outros membros do BNI que possam estar a lutar com isto. A tua estabilidade é contagiosa.';
+            } else if (yesCount <= 4) {
+                icon = '🌤️';
+                title = 'Alguns Sinais';
+                level = 'Sinais ligeiros de Síndrome do Impostor';
+                desc = 'Há situações em que o impostor aparece, mas não te controla. Reconhecer os sinais é meio caminho andado. Usa os 1-to-1s do BNI para falar sobre isto. Provavelmente, outros sentem o mesmo.';
+            } else if (yesCount <= 7) {
+                icon = '⚠️';
+                title = 'Atenção!';
+                level = 'Sinais moderados de Síndrome do Impostor';
+                desc = 'O impostor está a ter impacto real no teu networking e negócios. Estás a deixar passar oportunidades por medo, não por falta de capacidade. Começa pelo Diário de Vitórias: regista cada referência, cada TYFCB, cada elogio.';
+            } else {
+                icon = '🚨';
+                title = 'Impostor Ativo!';
+                level = 'Sinais fortes de Síndrome do Impostor';
+                desc = 'O impostor está a controlar muitas das tuas decisões no BNI. Não estás sozinho: 70% das pessoas passam por isto. A boa notícia? O BNI é um dos melhores antídotos. Fala com o teu coordenador, marca 1-to-1s, e começa a registar as tuas conquistas. O impostor perde força quando falas dele.';
+            }
+
+            document.getElementById('resultIcon').textContent = icon;
+            document.getElementById('resultTitle').textContent = title;
+            document.getElementById('resultLevel').textContent = level;
+            document.getElementById('resultDesc').textContent = desc;
+
+            if (yesCount <= 4) launchConfetti();
+        }
+
+        function restartQuiz() {
+            document.getElementById('result').classList.remove('active');
+            document.getElementById('welcome').classList.add('active');
+            currentQ = 0;
+            yesCount = 0;
+        }
+
+        function launchConfetti() {
+            var canvas = document.getElementById('confetti');
+            var ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            var particles = [];
+            var colors = ['#6366f1', '#818cf8', '#c084fc', '#22c55e', '#f59e0b', '#ec4899'];
+            for (var i = 0; i < 80; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height - canvas.height,
+                    w: Math.random() * 8 + 4,
+                    h: Math.random() * 4 + 2,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    vy: Math.random() * 3 + 2,
+                    vx: (Math.random() - 0.5) * 2,
+                    rot: Math.random() * 360,
+                    vr: (Math.random() - 0.5) * 10
+                });
+            }
+            var frame = 0;
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles.forEach(function(p) {
+                    p.y += p.vy; p.x += p.vx; p.rot += p.vr;
+                    ctx.save();
+                    ctx.translate(p.x, p.y);
+                    ctx.rotate(p.rot * Math.PI / 180);
+                    ctx.fillStyle = p.color;
+                    ctx.globalAlpha = Math.max(0, 1 - frame / 120);
+                    ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+                    ctx.restore();
+                });
+                frame++;
+                if (frame < 150) requestAnimationFrame(animate);
+                else ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+            animate();
+        }
+
+        window.onload = function() { generateQR(); };
+    </script>
+</body>
+</html>
